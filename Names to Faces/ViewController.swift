@@ -40,20 +40,23 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let person = people[indexPath.item]
-        let alertController = UIAlertController(title: "Rename person", message: nil, preferredStyle: .alert)
-        alertController.addTextField()
+        let mainAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
-        alertController.addAction(UIAlertAction(title: "Okay", style: .default) {
-            [weak self, weak alertController] _ in
-            if let newName = alertController?.textFields?[0].text {
-                person.name = newName
-                self?.collectionView.reloadData()
-            }
+        mainAlertController.addAction(UIAlertAction(title: "Rename", style: .default) {
+            [weak self] action in
+            self?.rename(action, indexPath: indexPath)
         })
         
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        present(alertController, animated: true)
+        mainAlertController.addAction(UIAlertAction(title: "Delete", style: .default) {
+            [weak self, weak collectionView] _ in
+            self?.people.remove(at: indexPath.item)
+            collectionView?.deleteItems(at: [indexPath])
+            
+        })
+        
+        mainAlertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        present(mainAlertController, animated: true)
     }
     
     @objc func addNewPerson() {
@@ -83,5 +86,23 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
     func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
+    }
+    
+    func rename(_ action: UIAlertAction, indexPath: IndexPath) {
+        let person = people[indexPath.item]
+        
+        let alertController = UIAlertController(title: "Rename person", message: nil, preferredStyle: .alert)
+        alertController.addTextField()
+        
+        alertController.addAction(UIAlertAction(title: "Okay", style: .default) {
+            [weak self, weak alertController] _ in
+            if let newName = alertController?.textFields?[0].text {
+                person.name = newName
+                self?.collectionView.reloadData()
+            }
+        })
+        
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alertController, animated: true)
     }
 }
