@@ -15,8 +15,7 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
         
-        let defaults = UserDefaults.standard
-        guard let savedPeople = defaults.object(forKey: "people") as? Data else { return }
+        guard let savedPeople = UserDefaults.standard.object(forKey: "people") as? Data else { return }
         
         if let decodedPeople = try? NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClass: Person.self, from: savedPeople) {
             people = decodedPeople
@@ -58,7 +57,7 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
             [weak self, weak collectionView] _ in
             self?.people.remove(at: indexPath.item)
             collectionView?.deleteItems(at: [indexPath])
-            
+            self?.save()
         })
         
         mainAlertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
